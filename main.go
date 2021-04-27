@@ -13,25 +13,24 @@ import (
 	"time"
 )
 
-func handler(a, b string) {
-	in := map[string]func(a string){
-		"a": func(a string) {
-			if a == "a" {
-				fmt.Println("a")
-			}
-			if a == "b" {
-				fmt.Println("b")
-			}
-		},
-	}
-	fn, exists := in[a]
-	if !exists {
-		fmt.Println("not exists")
-	} else {
-		fn(b)
-	}
-
-}
+// func handler(a, b string) {
+// 	in := map[string]func(a string){
+// 		"a": func(a string) {
+// 			if a == "a" {
+// 				fmt.Println("a")
+// 			}
+// 			if a == "b" {
+// 				fmt.Println("b")
+// 			}
+// 		},
+// 	}
+// 	fn, exists := in[a]
+// 	if !exists {
+// 		fmt.Println("not exists")
+// 	} else {
+// 		fn(b)
+// 	}
+// }
 
 func main() {
 	var wg sync.WaitGroup
@@ -84,28 +83,50 @@ func main() {
 }
 
 var routes = map[string]http.HandlerFunc{
-	"/differentCase": func(w http.ResponseWriter, req *http.Request) {
-		if req.URL.Query().Get("foo") == "bar" {
-			fmt.Fprint(w, "foobar")
-			return
+	"/handler": func(w http.ResponseWriter, req *http.Request) {
+		a := req.URL.Query().Get("a")
+		b := req.URL.Query().Get("b")
+
+		in := map[string]func(a string){
+			"a": func(a string) {
+				if a == "a" {
+					fmt.Fprint(w, "a")
+				} else if a == "b" {
+					fmt.Fprint(w, "b")
+				} else {
+					fmt.Fprint(w, a+" - not matched")
+				}
+			},
 		}
-		if req.URL.Query().Get("foo") == "bazzzz" {
-			fmt.Fprint(w, "bazzzz")
-			return
+		fn, exists := in[a]
+		if !exists {
+			fmt.Fprint(w, "not exists")
+		} else {
+			fn(b)
 		}
-		fmt.Fprint(w, "case2")
 	},
-	"/onlyPost": func(w http.ResponseWriter, req *http.Request) {
-		if req.Method == http.MethodGet {
-			fmt.Fprint(w, "only POST")
-			return
-		}
-		if req.Method == http.MethodHead {
-			fmt.Fprint(w, "only HEAD")
-			return
-		}
-		fmt.Fprint(w, "hello")
-	},
+	// "/differentCase": func(w http.ResponseWriter, req *http.Request) {
+	// 	if req.URL.Query().Get("foo") == "bar" {
+	// 		fmt.Fprint(w, "foobar")
+	// 		return
+	// 	}
+	// 	if req.URL.Query().Get("foo") == "bazzzz" {
+	// 		fmt.Fprint(w, "bazzzz")
+	// 		return
+	// 	}
+	// 	fmt.Fprint(w, "case2")
+	// },
+	// "/onlyPost": func(w http.ResponseWriter, req *http.Request) {
+	// 	if req.Method == http.MethodGet {
+	// 		fmt.Fprint(w, "only POST")
+	// 		return
+	// 	}
+	// 	if req.Method == http.MethodHead {
+	// 		fmt.Fprint(w, "only HEAD")
+	// 		return
+	// 	}
+	// 	fmt.Fprint(w, "hello")
+	// },
 }
 
 func handleTerm(cancel context.CancelFunc) {
